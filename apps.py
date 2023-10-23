@@ -92,7 +92,8 @@ class MeToobApp(App):
         self.stat_counter = TextBox(self.m,
                                     f'Subscribers: {self.settings.subscribers}\tLikes: {self.settings.likes}\t Views: {self.settings.views}',
                                     0, 0, (255, 255, 255), (0, 0, 0), self.app_area[0] + 10, 550, 40, False, 'left')
-        self.error_msg = TextBox(self.m, f'You need {self.settings.post_cost - self.settings.pretzels} more pretzels!',
+        self.error_msg = TextBox(self.m,
+                                 f'You need {self.settings.post_cost - round(self.settings.pretzels)} more pretzels!',
                                  0, 0, (0, 0, 0), (200, 6, 16), self.app_area[0] + 30, 390, 30, True, 'left')
 
     def update_vid_list(self):
@@ -208,7 +209,8 @@ class MeToobApp(App):
             self.submit_button.draw_image()
 
             if self.settings.post_cost - self.settings.pretzels > 0:
-                self.error_msg.prep_msg(f'You need {self.settings.post_cost - self.settings.pretzels} more pretzels!')
+                self.error_msg.prep_msg(
+                    f'You need {self.settings.post_cost - round(self.settings.pretzels)} more pretzels!')
                 self.error_msg.draw_box()
 
         self.title.draw_box()
@@ -227,7 +229,7 @@ class MeToobApp(App):
 
 class LikeSubHackApp(App):
     def __init__(self, m):
-        super().__init__(m, 'Sub and Like Hack', 2000, 2, False, False)
+        super().__init__(m, 'Sub and Like Hack', 1500, 2, False, False)
         self.m = m
 
         with open('data/keywords.json', 'r') as f:
@@ -240,11 +242,15 @@ class LikeSubHackApp(App):
         self.like_button = ImageBox(m, 'images/like_button.png', 250, 80, self.app_area[0] + 50, 180)
         self.ppc_button = ImageBox(m, 'images/ppc_button.png', 250, 80, self.app_area[0] + 50, 280)
         self.sub_btn_cost = TextBox(m, f'cost: {self.settings.sub_cost}', 0, 0, (0, 0, 0), (0, 0, 0),
-                                    self.app_area[0] + 310, 90, 40, True, 'left')
-        self.like_btn_cost = TextBox(m, 'cost: 5', 0, 0, (0, 0, 0), (0, 0, 0), self.app_area[0] + 310, 190, 40, True,
-                                     'left')
+                                    self.app_area[0] + 310, 80, 40, True, 'left')
+        self.like_btn_cost = TextBox(m, f'cost: {self.settings.like_cost}', 0, 0, (0, 0, 0), (0, 0, 0),
+                                     self.app_area[0] + 310, 180, 40, True, 'left')
+        self.like_btn_value = TextBox(m, f'pretzels per like: {self.settings.like_give}', 0, 0, (0, 0, 0), (0, 0, 0),
+                                     self.app_area[0] + 310, 220, 40, True, 'left')
         self.ppc_btn_cost = TextBox(m, f'cost: {self.settings.ppc_cost}', 0, 0, (0, 0, 0), (0, 0, 0),
-                                    self.app_area[0] + 310, 290, 40, True, 'left')
+                                    self.app_area[0] + 310, 280, 40, True, 'left')
+        self.ppc_counter = TextBox(m, f'total ppc: {self.settings.pretzels_per_click}', 0, 0, (0, 0, 0), (0, 0, 0),
+                                   self.app_area[0] + 310, 320, 40, True, 'left')
 
         self.keyword_show = TextBox(m, f'Show daily keywords for 1000 pretzels', 0, 0, (0, 0, 0), (0, 0, 0),
                                     self.app_area[0] + 50, 390, 30, True, 'left')
@@ -284,12 +290,14 @@ class LikeSubHackApp(App):
                 if clicked and self.settings.pretzels >= self.settings.ppc_cost:
                     self.settings.pretzels_per_click += 1
                     self.settings.pretzels -= self.settings.ppc_cost
-                    self.settings.ppc_cost += self.settings.ppc_cost // 5
+                    self.settings.ppc_cost += 2
                 clicked = self.like_button.rect.collidepoint(mouse_pos)
-                if clicked and self.settings.pretzels >= 5:
+                if clicked and self.settings.pretzels >= self.settings.like_cost:
                     self.settings.likes += 1
-                    self.settings.pretzels -= 5
-                    self.settings.pretzels += 5
+                    self.settings.like_cost += 5
+                    self.settings.like_give += 1
+                    self.settings.pretzels -= self.settings.like_cost
+                    self.settings.pretzels += self.settings.like_give
 
     def update_screen(self):
         end_t = time.time()
@@ -298,11 +306,16 @@ class LikeSubHackApp(App):
 
         self.bg_img.draw_image()
         self.sub_button.draw_image()
+        self.like_btn_cost.prep_msg(f"cost: {self.settings.like_cost}")
         self.like_button.draw_image()
         self.sub_btn_cost.prep_msg(f'cost: {self.settings.sub_cost}')
         self.sub_btn_cost.draw_box()
         self.ppc_btn_cost.prep_msg(f'cost: {self.settings.ppc_cost}')
         self.ppc_btn_cost.draw_box()
+        self.like_btn_value.prep_msg(f'pretzels per like: {self.settings.like_give}')
+        self.like_btn_value.draw_box()
+        self.ppc_counter.prep_msg(f'total ppc: {self.settings.pretzels_per_click}')
+        self.ppc_counter.draw_box()
         self.ppc_button.draw_image()
         self.like_btn_cost.draw_box()
         self.title.draw_box()
@@ -318,7 +331,7 @@ class LikeSubHackApp(App):
             else:
                 self.keyword_show.text_color = (255, 0, 0)
                 self.keyword_show.prep_msg(
-                    f'You need {1000 - self.settings.pretzels} more pretzels to show todays\'s popular searches')
+                    f'You need {1000 - round(self.settings.pretzels)} more pretzels to show todays\'s popular searches')
             self.keyword_show.draw_box()
 
         current_time = datetime.datetime.now().day

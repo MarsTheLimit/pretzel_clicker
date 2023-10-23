@@ -19,6 +19,8 @@ class Main:
         self.golden_run = False
 
         pygame.display.set_caption('Pretzel Clicker')
+        pygame_icon = pygame.image.load('images/icon.png')
+        pygame.display.set_icon(pygame_icon)
 
         self.next_btn = ImageBox(self, 'images/next_arrow.png', 86, 80, self.stgs.screen_width // 2 - 43,
                                  self.stgs.screen_height - 100)

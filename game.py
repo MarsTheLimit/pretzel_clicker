@@ -127,7 +127,7 @@ class Game:
                                     f"You need to be at level {self.app_buttons[i].app.level_needed} to buy {self.app_buttons[i].app.app_name}.")
                         else:
                             self.display_error(
-                                f"You need {self.app_buttons[i].app.cost - self.settings.pretzels} pretzels to buy {self.app_buttons[i].app.app_name}.")
+                                f"You need {self.app_buttons[i].app.cost - round(self.settings.pretzels)} pretzels to buy {self.app_buttons[i].app.app_name}.")
 
             clicked = self.pretzel_button.rect.collidepoint(mouse_pos)
             if clicked:
@@ -214,7 +214,7 @@ class Game:
                 self.settings.game_running = False
         else:
             self.display_error(
-                f'You need {self.settings.bear_feed_cost - self.settings.pretzels} more pretzels to do that.')
+                f'You need {self.settings.bear_feed_cost - round(self.settings.pretzels)} more pretzels to do that.')
 
     def check_level_up(self):
         if self.settings.t_bear_fed >= self.settings.level_up and self.settings.level < 10:

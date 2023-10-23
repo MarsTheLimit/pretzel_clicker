@@ -21,7 +21,7 @@ class Settings:
             self.load_stats()
 
         except IndexError:
-            self.stats = [0, 0, 0, 0, 0, 0, 1, 25, 0, 10, 500, '', 0, False, datetime.datetime.now().day, 0, 10]
+            self.stats = [0, 0, 0, 0, 0, 0, 1, 25, 0, 10, 500, '', 0, False, datetime.datetime.now().day, 0, 1, 5, 10]
             self.load_stats()
 
         with open('data/users/purchased_apps.json', 'r') as f:
@@ -34,7 +34,7 @@ class Settings:
         self.m.screen.fill((0, 0, 0))
         self.purchased_apps = []
         with open('data/users/user.json', 'w') as f:
-            json.dump([0, 0, 0, 0, 0, 0, 1, 25, 0, 10, 1000, '', 0, False, datetime.datetime.now().day, self.golden_pretzels], f)
+            json.dump([0, 0, 0, 0, 0, 0, 1, 25, 0, 10, 1000, '', 0, False, datetime.datetime.now().day, self.golden_pretzels, 1, 5, 10], f)
         with open('data/users/user.json', 'r') as f:
             self.stats = json.load(f)
         with open('data/users/purchased_apps.json', 'w') as f:
@@ -48,7 +48,7 @@ class Settings:
 
     def get_like_view(self, option: int):
         if option == 0:
-            self.pretzels += 5
+            self.pretzels += self.like_give
         elif option == 2:
             self.pretzels += 100
         else:
@@ -80,12 +80,14 @@ class Settings:
         self.last_date = self.stats[14]
         self.golden_pretzels = self.stats[15]
         self.ppc_cost = self.stats[16]
+        self.like_give = self.stats[17]
+        self.like_cost = self.stats[18]
 
     def save_stats(self):
         self.stats = [
             self.pretzels, self.t_bear_fed, self.pps, self.likes, self.subscribers, self.views, self.pretzels_per_click,
             self.bear_feed_cost, self.level, self.level_up, self.sub_cost, self.stock, self.stock_buy_price,
-            self.daily_keywords, datetime.datetime.now().day, self.golden_pretzels, self.ppc_cost]
+            self.daily_keywords, datetime.datetime.now().day, self.golden_pretzels, self.ppc_cost, self.like_give, self.like_cost]
         with open('data/users/user.json', 'w') as f:
             json.dump(self.stats, f)
         with open('data/users/purchased_apps.json', 'w') as f:
