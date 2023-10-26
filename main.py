@@ -31,7 +31,7 @@ class Main:
         self.txts = ["Well,", 'Here we are.', 'You won [part of] the game.',
                      'You\'re probably wondering what will happen next...', 'Unless you done this before.',
                      'You get a GOLDEN PRETZEL!', 'Golden pretzels are the real prize.',
-                     f'Get to 5 golden pretzels to REALLY win the game! (you have {self.stgs.golden_pretzels})',
+                     f'Get to 5 golden pretzels to REALLY win the game! (you have {self.stgs.golden_pretzels + 1})',
                      f'For all your efforts, we\'ll award you {(self.stgs.golden_pretzels + 1) * 5000} pretzels.',
                      'Good luck!']
         self.txt_boxes = []

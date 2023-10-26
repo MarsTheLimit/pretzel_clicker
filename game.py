@@ -22,7 +22,7 @@ class Game:
         self.start_t = time()
 
         self.help_btn = TextBox(self.m, 'Help', 0, 0, (0, 0, 0), (0, 0, 0), self.app_area[2] - 120, 20, 40, True, 'left')
-        self.algo = Algorithm(m, self.apps.stocks)
+        self.algo = Algorithm(m)
         self.bg_img = ImageBox(self.m, 'images/paper_texture.png', 800, 600, self.m.app_area[0], 0)
         self.title_img = TextBox(self.m, 'Apps', 0, 0, (0, 0, 0), (0, 0, 0), (self.app_area[2] - self.app_area[0]),
                                  40, 40, True)
@@ -40,6 +40,8 @@ class Game:
                                         (255, 255, 255), 0, self.settings.screen_height // 2, 40, False, 'left')
         self.bear_lvl_counter = TextBox(m, f'Level {self.settings.level} Bear', 0, 0, (0, 0, 0),
                                         (255, 255, 255), 5, self.settings.screen_height - 30, 30, True, 'left')
+        self.bear_feed_cost_count = TextBox(m, f'Bear needs {self.settings.bear_feed_cost} pretzels', 0, 0, (0, 0, 0),
+                                        (255, 255, 255), self.app_area[0], self.settings.screen_height - 30, 30, True, 'right')
         self.pretzels_stock = TextBox(m, f'{self.apps.stocks.get_stock_val() - self.settings.stock_buy_price}', 0, 0,
                                       (0, 0, 0), (0, 0, 0), self.app_area[0], self.m.stgs.screen_height // 2 - 30, 30,
                                       True, 'right')
@@ -98,6 +100,7 @@ class Game:
                 video = list(self.apps.me_toob.video_dict.values())[
                     random.randint(0, len(self.apps.me_toob.video_dict) - 1)]
                 self.algo.algorithm(video)
+                
             except ValueError:
                 pass
 
@@ -138,6 +141,8 @@ class Game:
                 self.check_level_up()
 
     def update_screen(self):
+        self.bear_button.image_str = f'images/bear{self.settings.level}.png'
+        self.bear_button.reload_img()
         end_t = time()
         if end_t - self.start_t >= 1:
             self.algorithm()
@@ -161,6 +166,8 @@ class Game:
         self.bear_fed_counter.draw_box()
         self.bear_lvl_counter.prep_msg(f'Level {self.settings.level} Bear')
         self.bear_lvl_counter.draw_box()
+        self.bear_feed_cost_count.prep_msg(f'Bear needs {self.settings.bear_feed_cost} pretzels')
+        self.bear_feed_cost_count.draw_box()
         if self.apps.stocks.active:
             self.pretzels_stock.prep_msg(
                 f'{self.apps.stocks.get_stock_val() - self.settings.stock_buy_price} from stocks')
@@ -174,6 +181,7 @@ class Game:
                 self.display_error('You can\'t have more than 10 videos at once!')
 
         elif self.apps.hack.active:
+            self.apps.me_toob.check_vid_oldness()
             self.apps.hack.update_screen()
         elif self.apps.stocks.active:
             self.apps.stocks.update_screen()
@@ -209,8 +217,11 @@ class Game:
         if self.settings.pretzels - self.settings.bear_feed_cost >= 0:
             self.settings.pretzels -= self.settings.bear_feed_cost
             self.settings.t_bear_fed += 1
-            self.settings.bear_feed_cost += self.settings.bear_feed_cost // 10
+            self.settings.bear_feed_cost += self.settings.bear_feed_cost // 15
             if self.settings.t_bear_fed >= 110:
+                self.apps.me_toob.active = False
+                self.apps.hacks.active = False
+                self.apps.stocks.active = False
                 self.settings.game_running = False
         else:
             self.display_error(
@@ -226,4 +237,4 @@ class Game:
 
     def pretzels_ps(self):
         pygame.time.wait(100)
-        self.settings.pretzels += self.settings.pps
+        self.settings.pretzels += self.settings.pps // 10

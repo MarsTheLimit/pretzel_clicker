@@ -13,9 +13,9 @@ from algorithm import Algorithm, Video
 class Apps:
     def __init__(self, m):
         self.m = m
-        self.me_toob = MeToobApp(m)
-        self.hack = LikeSubHackApp(m)
         self.stocks = StockApp(m)
+        self.me_toob = MeToobApp(m, self)
+        self.hack = LikeSubHackApp(m)
         self.apps = [self.me_toob, self.hack, self.stocks]
 
 
@@ -53,16 +53,16 @@ class App:
 
 
 class MeToobApp(App):
-    def __init__(self, m):
+    def __init__(self, m, apps):
         super().__init__(m, 'MeToob', 20, 0, False, False)
         self.m = m
-        self.stock_app = StockApp(m)
 
         self.post_button = ImageBox(m, 'images/create_btn.png', 100, 45, self.app_area[2] - 120, 20)
 
         self.active_vid = 0
         with open('data/videos.json', 'r') as f:
             self.video_dict = json.load(f)
+        self.stock_app = apps.stocks
         self.update_vid_list()
 
         # For posting
@@ -95,6 +95,16 @@ class MeToobApp(App):
         self.error_msg = TextBox(self.m,
                                  f'You need {self.settings.post_cost - round(self.settings.pretzels)} more pretzels!',
                                  0, 0, (0, 0, 0), (200, 6, 16), self.app_area[0] + 30, 390, 30, True, 'left')
+        
+        self.check_stocks()
+                                 
+    def check_stocks(self):
+        for stock in self.stock_app.stocks:
+            stock.chance_rise = 50
+            stock.chance_fall = 40
+            for key, data in self.video_dict.items():
+                if data[7] == stock.name:
+                    stock.influence_stock(10)
 
     def update_vid_list(self):
         self.video_imgs = []
@@ -111,7 +121,7 @@ class MeToobApp(App):
             video = Video(self.choice_1.msg, self.choice_2)
             video.make_img()
 
-            algo = Algorithm(self.m, self.stock_app)
+            algo = Algorithm(self.m)
             algo.analyze_vid(video, self.hack.keywords)
 
             self.video_dict[video.random_post_id] = [video.save_dir, 0, 0, algo.video_points, 0, algo.sub_like_range,
@@ -119,9 +129,7 @@ class MeToobApp(App):
             self.update_vid_list()
             self.m.stgs.save_stats()
             self.choice_2 = ''
-            for stock in self.stock_app.stocks:
-                stock.update_vid_list()
-                stock.calc_video_influence()
+            self.calc_video_influence(self.video_dict[video.random_post_id])
             self.posting = False
 
     def check_events(self, event):
@@ -172,6 +180,12 @@ class MeToobApp(App):
                 self.choice_2 = self.choice_2[:-1]
             else:
                 self.choice_2 += event.unicode
+                
+    def calc_video_influence(self, data):
+        for stock in self.stock_app.stocks:
+            if data[7] == stock.name:
+                stock.influence_stock(10)
+                break
 
     def update_screen(self):
         self.bg_img.draw_image()
@@ -220,11 +234,12 @@ class MeToobApp(App):
     def check_vid_oldness(self):
         for key, value in self.video_dict.items():
             oldness = round(time.time() - value[6])
-            if oldness >= 7200:
+            if oldness >= 600:
                 os.remove(self.video_dict[key][0])
                 del self.video_dict[key]
                 self.update_vid_list()
                 break
+        self.check_stocks()
 
 
 class LikeSubHackApp(App):
@@ -234,8 +249,7 @@ class LikeSubHackApp(App):
 
         with open('data/keywords.json', 'r') as f:
             self.keywords = json.load(f)
-        self.possible_keywords = ['poop', 'lol', 'pee', 'bear', 'abibos', 'metoob', 'donald nasplukker', 'stewz',
-                                  'tnnl', 'pretzel', 'toilet', 'poopy buttcheeck', 'dum', 'coolio', 'lololol']
+        self.possible_keywords = ['poop', 'lol', 'pee', 'bear', 'abibos', 'metoob', 'stewz', 'tnnl', 'pretzel', 'toilet', 'poopy', 'buttcheeck', 'dum', 'coolio', 'lolol', 'jane']
         self.start_t = time.time()
 
         self.sub_button = ImageBox(m, 'images/sub_button.png', 250, 80, self.app_area[0] + 50, 80)
@@ -352,11 +366,12 @@ class StockApp(App):
                                  True, 'left')
         self.selected_stock = self.settings.stock
         for stock in self.stocks:
-            stock_btn = TextBox(m, f'{stock.name.title()}: {stock.value}', 120, 27, (0, 0, 0), (255, 255, 255),
+            #stock_btn = TextBox(m, f'{stock.name.title()}: {stock.value}', 120, 27, (0, 0, 0), (255, 255, 255),
+            stock_btn = TextBox(m, '{stock.name.title()}: {stock.value}', 120, 27, (0, 0, 0), (255, 255, 255),
                                 self.app_area[0] + 50, y, 30, False, 'left', stock)
-            fall_per = TextBox(m, f'{round(stock.chance_fall, 2)}%', 0, 0, (0, 0, 0), (255, 0, 0),
+            fall_per = TextBox(m, f'fall%', 0, 0, (0, 0, 0), (255, 0, 0),
                                self.app_area[0] + 50, y + 30, 30, True, 'left')
-            rise_per = TextBox(m, f'{round(stock.chance_rise, 2)}%', 0, 0, (0, 0, 0), (38, 171, 42),
+            rise_per = TextBox(m, f'rise%', 0, 0, (0, 0, 0), (38, 171, 42),
                                self.app_area[0] + 140, y + 30, 30, True, 'left')
             buy_btn = TextBox(m, f'Select', 0, 0, (0, 0, 0), (0, 0, 0), self.app_area[0] + 230, y + 30, 30, True,
                               'left', stock)
@@ -413,14 +428,12 @@ class StockApp(App):
                 stock.simulate(0)
             else:
                 stock.show_graph()
-
-        for stock in self.stocks:
             stock_btn = self.stock_btns[self.stocks.index(stock)]
             stock_btn.prep_msg(f'{stock.name.title()}: {stock.value}')
             stock_btn.draw_box()
 
             buy_btn = self.buy_stock_btns[self.stocks.index(stock)]
-            if stock.value <= self.settings.pretzels:
+            if stock.value <= self.settings.pretzels and self.selected_stock != stock.name:
                 buy_btn.text_color = (0, 0, 0)
             else:
                 buy_btn.text_color = (255, 0, 0)
@@ -430,9 +443,11 @@ class StockApp(App):
                 buy_btn.prep_msg('Buy')
             buy_btn.draw_box()
 
-            self.rise_percents[self.stocks.index(stock)].prep_msg(f'{round(stock.chance_rise, 2)}%')
+            rise = stock.get_percs()[0]
+            self.rise_percents[self.stocks.index(stock)].prep_msg(f'{rise}%')
             self.rise_percents[self.stocks.index(stock)].draw_box()
-            self.fall_percents[self.stocks.index(stock)].prep_msg(f'{round(stock.chance_fall, 2)}%')
+            fall = stock.get_percs()[1]
+            self.fall_percents[self.stocks.index(stock)].prep_msg(f'{fall}%')
             self.fall_percents[self.stocks.index(stock)].draw_box()
 
         self.title.draw_box()

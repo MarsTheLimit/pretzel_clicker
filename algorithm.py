@@ -33,9 +33,8 @@ class Video:
 
 
 class Algorithm:
-    def __init__(self, m, stocks):
+    def __init__(self, m):
         self.settings = m.stgs
-        self.stock_app = stocks
 
     def analyze_vid(self, video, keywords):
         self.video = video
@@ -67,8 +66,7 @@ class Algorithm:
             pass
 
         value[4] += 1
-        for stock in self.stock_app.stocks:
-            stock.calc_video_influence()
+        
         self.settings.views += 1
         self.settings.get_like_view(0)
         self.settings.update_like_sub()

@@ -28,7 +28,10 @@ class Settings:
             self.purchased_apps = json.load(f)
 
     def update_pps_value(self):
-        self.pps = self.subscribers / 100
+        if self.subscribers >= 100:
+            self.pps = self.subscribers * 10
+        else:
+            self.pps = self.subscribers
 
     def reset_stats(self):
         self.m.screen.fill((0, 0, 0))
