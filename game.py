@@ -220,7 +220,7 @@ class Game:
             self.settings.bear_feed_cost += self.settings.bear_feed_cost // 15
             if self.settings.t_bear_fed >= 110:
                 self.apps.me_toob.active = False
-                self.apps.hacks.active = False
+                self.apps.hack.active = False
                 self.apps.stocks.active = False
                 self.settings.game_running = False
         else:
