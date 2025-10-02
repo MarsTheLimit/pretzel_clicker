@@ -237,4 +237,4 @@ class Game:
 
     def pretzels_ps(self):
         pygame.time.wait(100)
-        self.settings.pretzels += self.settings.pps // 10
+        self.settings.pretzels += self.settings.pps / 10

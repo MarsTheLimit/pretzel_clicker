@@ -1,3 +1,7 @@
+"""
+pretzels, bear_fed, 
+"""
+
 import pygame
 import sys
 

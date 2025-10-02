@@ -19,7 +19,6 @@ class Stock:
         try:
             self.chance_rise += 0
         except AttributeError:
-            print("init")
             self.chance_rise = 50
             self.chance_stay = 10
             self.chance_fall = 100 - (self.chance_rise + self.chance_stay)
@@ -36,7 +35,6 @@ class Stock:
         
 
     def influence_stock(self, increase):
-        print("bbb", self.chance_rise, self.chance_fall)
         self.chance_rise += increase
         if self.chance_rise > 90:
             self.chance_rise = 90
@@ -48,12 +46,20 @@ class Stock:
         if time() - self.start >= 2:
             fate = self.calc_chance()
 
-            if fate == ['rise']:
-                self.value += random.choices([100, 200, 300], weights=(75, 20, 5))[0]
-            elif fate == ['fall']:
-                self.value -= random.choices([100, 200, 300], weights=(50, 30, 20))[0]
+            if self.chance_rise <= 60:
+                if fate == ['rise']:
+                    self.value += random.choices([150, 200, 300], weights=(75, 20, 5))[0]
+                elif fate == ['fall']:
+                    self.value -= random.choices([100, 200, 300], weights=(20, 30, 50))[0]
+                else:
+                    pass
             else:
-                pass
+                if fate == ['rise']:
+                    self.value += random.choices([50, 100, 150], weights=(85, 10, 5))[0]
+                elif fate == ['fall']:
+                    self.value -= random.choices([100, 200, 300], weights=(30, 30, 40))[0]
+                else:
+                    pass
             self.y += 1
 
             self.value_history[0].append(self.value)

@@ -104,7 +104,7 @@ class MeToobApp(App):
             stock.chance_fall = 40
             for key, data in self.video_dict.items():
                 if data[7] == stock.name:
-                    stock.influence_stock(10)
+                    stock.influence_stock(2.5)
 
     def update_vid_list(self):
         self.video_imgs = []
@@ -184,7 +184,7 @@ class MeToobApp(App):
     def calc_video_influence(self, data):
         for stock in self.stock_app.stocks:
             if data[7] == stock.name:
-                stock.influence_stock(10)
+                stock.influence_stock(2.5)
                 break
 
     def update_screen(self):

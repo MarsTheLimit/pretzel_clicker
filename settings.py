@@ -21,6 +21,7 @@ class Settings:
             self.load_stats()
 
         except IndexError:
+            # pretzels, times bear's been fed, 
             self.stats = [0, 0, 0, 0, 0, 0, 1, 25, 0, 10, 500, '', 0, False, datetime.datetime.now().day, 0, 1, 5, 10]
             self.load_stats()
 
@@ -28,10 +29,11 @@ class Settings:
             self.purchased_apps = json.load(f)
 
     def update_pps_value(self):
-        if self.subscribers >= 100:
+        if self.subscribers >= 50:
             self.pps = self.subscribers * 10
         else:
-            self.pps = self.subscribers
+            self.pps = self.subscribers * 5
+        self.pps += self.level * 5
 
     def reset_stats(self):
         self.m.screen.fill((0, 0, 0))
@@ -90,7 +92,8 @@ class Settings:
         self.stats = [
             self.pretzels, self.t_bear_fed, self.pps, self.likes, self.subscribers, self.views, self.pretzels_per_click,
             self.bear_feed_cost, self.level, self.level_up, self.sub_cost, self.stock, self.stock_buy_price,
-            self.daily_keywords, datetime.datetime.now().day, self.golden_pretzels, self.ppc_cost, self.like_give, self.like_cost]
+            self.daily_keywords, datetime.datetime.now().day, self.golden_pretzels, self.ppc_cost, self.like_give, self.like_cost
+            ]
         with open('data/users/user.json', 'w') as f:
             json.dump(self.stats, f)
         with open('data/users/purchased_apps.json', 'w') as f:
